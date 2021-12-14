@@ -103,9 +103,8 @@ but the beneficiary can create another transcation to unlock that value.
 Caveat: If the benefactor puts in too little value to begin with,
 when the first vesting deadline (and possibly later deadlines)
 is reached, the full value (or even a portion of it) may not be accessible
-to the beneficiary. The benefactor can lock more value in the script or
-the beneficiary will have to wait until a later vesting deadline. 100%
-of the value will be accessible after all deadlines have passed.
+to the beneficiary. The beneficiary will have to wait until a later vesting
+deadline. 100% of the value will always be accessible after all deadlines have passed.
 -}
 mkValidator :: Datum -> () -> ScriptContext -> Bool
 mkValidator datum _ ctx =
