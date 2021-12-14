@@ -31,28 +31,16 @@ Every unique revenue split requires a custom smart contract. To compile a smart 
 Running `create-vesting-sc --help` gives:
 
 ```bash
-Usage: create-vesting-sc (--to <public-key-hash>:<pct>) --output FILE
-  Create a smart contract for revenue sharing
+Usage: create-vesting-sc --output FILE
+  Create a smart contract for vesting
 
 Available options:
-  --to <public-key-hash>:<pct>
-                           Address to send to and the percent to send. Can
-                           appear multiple times. Percentages are times 10, e.g.
-                           2.5% would be 25. Percentages must add up to 100%
-                           (i.e. 1000).
   --output FILE            Where to write the script.
   -h,--help                Show this help text
 ```
 
-To create a smart contract, you must provide several public key hashes and percentages. The percentages are specified as integers as 10, so 2.5% would be 25.
-
-For example, the following splits revenue between three parties, where the first receives 50% the second 45% and the third receives 5%:
-
 ```bash
 $ create-vesting-sc \
-    --to 7d719f67ba959af1ad21e636d037ddd4399e1188e8d9b405ba89296f:500 \
-    --to 09ea313c856b8efae22332fa73d503b73cf2c848d66dfc246f25c3a0:450 \
-    --to 94e9ee57b311a5d0bcb9c112c1800571b8698d25fa77aba1039905f0:50 \
     --output SC_FILEPATH
 ```
 
@@ -68,7 +56,7 @@ $ cardano-cli address build \
 
 ## Example Transactions
 
-To split funds, Ada must be sent to the script address created in the step above.
+To create a vesting schedule for a beneficiary, Ada must be sent to the script address created in the step above with a hash of the datum, which contains the beneficiary and vesting schedule.
 
 Here is an example transaction:
 
@@ -77,7 +65,7 @@ cardano-cli transaction build \
     --alonzo-era \
     --mainnet \
     --tx-in 2a27d27eb9d32a3c98276eb65fbeba4d0e134679726f7af78521c403de08311e#0 \
-    --tx-out "$(cat vesting.addr) + 10000000 lovelace" \
+    --tx-out "$(cat vesting.addr) + 12000000 lovelace" \
     --tx-out-datum-hash "$(cardano-cli transaction hash-script-data --script-data-value 12)" \
     --change-address addr1v85teypffelqjaa92t6s363qhzcfkdplcfeh6e0pr9k48mc20wq09 \
     --protocol-params-file protocol-parameters.json \
@@ -94,10 +82,10 @@ cardano-cli transaction build \
     --mainnet \
     --tx-in 2b81720f2cb268ff0827ba6f5858e7ce82e1fc4a14f4c8effcafa389acaad55b#1 \
     --tx-in-script-file vesting.plutus \
-    --tx-in-datum-value 12 \
+    --tx-in-datum-file vesting.json \
     --tx-in-redeemer-value 0 \
     --tx-in bedfb6a1729598dc5af08d29ebf0e7b3c73a86db4a2dc5316fe6fd7873f64946#0 \
-    --required-signer ~/keys/splitter.skey \
+    --required-signer ~/keys/benefactor.skey \
     --tx-in-collateral bedfb6a1729598dc5af08d29ebf0e7b3c73a86db4a2dc5316fe6fd7873f64946#0 \
     --tx-out "addr1v8dg6hwygkphs4x0f3uwqx0jyywcarvhaquf0f2pzamf2ac7nzw0f + 5000000 lovelace" \
     --tx-out "addr1v9ptfru625resx2rnw4csqfz0y99lecem97a4vqfnhhvk7qen3w2m + 4500000 lovelace" \

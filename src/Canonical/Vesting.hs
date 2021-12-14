@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -20,9 +21,9 @@ import Ledger hiding (Datum, singleton)
 import qualified Ledger.Contexts as Validation
 import qualified Ledger.Typed.Scripts as Scripts
 import qualified Ledger.Value as Value
+import Plutus.V1.Ledger.Credential
 import qualified PlutusTx
 import PlutusTx.Prelude hiding (Semigroup (..), unless)
-import Ledger.Ada hiding (divide)
 
 -------------------------------------------------------------------------------
 -- Types
@@ -43,6 +44,46 @@ data Datum = Datum
   }
 
 PlutusTx.unstableMakeIsData ''Datum
+
+-------------------------------------------------------------------------------
+{-
+
+Batch Transaction Exploit Protection
+
+If multiple script inputs were allowed in a single transaction, it would be
+possible for a beneficiary to take an unvested amount from one vesting schedule
+by combining it with a vested schedule and having the script output satisfy the
+terms of both vesting schedules.
+
+As an example, take the following vesting schedules, which both go to the same beneficiary:
+  * in vesting schedule A, 10 Ada vests at 2 months and another 10 Ada vests at 4 months
+  * in vesting schedule B, 10 Ada vests at 1 month and another 10 Ada vests at 2 months
+
+If the beneficiary does not unlock any value from B until after 3 months, they can construct
+a transaction that allows them to unlock 20 Ada from schedule A and zero from
+schedule B. There would still be 20 Ada left locked in the script, which would satisfy
+the validator for schedules A and B. The beneficiary could then create a second
+transaction to unlock the value from schedule B.
+-}
+-------------------------------------------------------------------------------
+{-# INLINABLE isScriptAddress #-}
+isScriptAddress :: Address -> Bool
+isScriptAddress Address { addressCredential } = case addressCredential of
+  ScriptCredential _ -> True
+  _ -> False
+
+-- Verify that there is only one script input and get it's value.
+{-# INLINABLE onlyOneScriptInput #-}
+onlyOneScriptInput :: TxInfo -> Bool
+onlyOneScriptInput info =
+  let
+    isScriptInput :: TxInInfo -> Bool
+    isScriptInput = isScriptAddress . txOutAddress . txInInfoResolved
+
+  in case filter isScriptInput . txInfoInputs $ info of
+    [_] -> True
+    _ ->  False
+
 
 -------------------------------------------------------------------------------
 -- Validator
@@ -68,7 +109,8 @@ of the value will be accessible after all deadlines have passed.
 -}
 mkValidator :: Datum -> () -> ScriptContext -> Bool
 mkValidator datum _ ctx =
-  traceIfFalse "Beneficiary's signature missing" signedByBeneficiary
+  traceIfFalse "expected exactly one script input" (onlyOneScriptInput info)
+    && traceIfFalse "Beneficiary's signature missing" signedByBeneficiary
     && traceIfFalse "Not enough value remains locked to fulfill vesting schedule" outputValid
   where
     info :: TxInfo
