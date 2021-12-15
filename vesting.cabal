@@ -33,12 +33,15 @@ library
     -fobject-code -fno-ignore-interface-pragmas
     -fno-omit-interface-pragmas -Wno-unused-packages -Werror
 
-executable create-vesting-sc
+executable vesting-sc
   import:         lang
   hs-source-dirs: app
   main-is:        Main.hs
   ghc-options:    -threaded -rtsopts -with-rtsopts=-T
   build-depends:
+    , aeson
+    , bytestring
     , cardano-api
+    , plutus-ledger-api
     , optparse-applicative
     , vesting

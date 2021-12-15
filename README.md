@@ -19,28 +19,31 @@ A `shell.nix` is also provided for nix users.
 This library includes an executable to build the smart contracts. To install it to a specific directory, run:
 
 ```
-$ cabal install exe:create-vesting-sc --install-method=copy --installdir=YOUR_INSTALLATION_DIR
+$ cabal install exe:vesting-sc --install-method=copy --installdir=YOUR_INSTALLATION_DIR
 ```
 
 Where `YOUR_INSTALLATION_DIR` is a directory of your choosing.
 
 ## Compiling the Smart Contracts
 
-Every unique revenue split requires a custom smart contract. To compile a smart contract, use the provided executable `create-vesting-sc`.
+To compile the smart contract, use the provided executable `vesting-sc`.
 
-Running `create-vesting-sc --help` gives:
+Running `vesting-sc --help` gives:
 
 ```bash
-Usage: create-vesting-sc --output FILE
-  Create a smart contract for vesting
+Usage: vesting-sc COMMAND
+  Create a smart contract for sharing
 
 Available options:
-  --output FILE            Where to write the script.
   -h,--help                Show this help text
+
+Available commands:
+  write
+  datum
 ```
 
 ```bash
-$ create-vesting-sc \
+$ vesting-sc write \
     --output SC_FILEPATH
 ```
 
@@ -66,15 +69,97 @@ cardano-cli transaction build \
     --mainnet \
     --tx-in 2a27d27eb9d32a3c98276eb65fbeba4d0e134679726f7af78521c403de08311e#0 \
     --tx-out "$(cat vesting.addr) + 12000000 lovelace" \
-    --tx-out-datum-hash "$(cardano-cli transaction hash-script-data --script-data-value 12)" \
+    --tx-out-datum-hash "$(cardano-cli transaction hash-script-data --script-data-file vesting.json)" \
     --change-address addr1v85teypffelqjaa92t6s363qhzcfkdplcfeh6e0pr9k48mc20wq09 \
     --protocol-params-file protocol-parameters.json \
     --out-file locking-tx-body.txt
 ```
 
-A couple of things to point out. First, we are sending Ada to the address we created earlier, e.g. `vesting.addr`. Next, we included a required datum hash. The datum is ignored by the script, so the exact value we are hashing does not matter. However, it must be a valid hash, and the datum needs to be passed into the unlocking transaction.
+A couple of things to point out. First, we are sending Ada to the address we created earlier, e.g. `vesting.addr`. Next, we included a required datum hash. It's a hash of the datum, which contains the beneficiary and vesting schedule. It looks like this
 
-Here is an example of unlocking transaction corresponding to above locking transaction:
+```
+{
+  "constructor": 0,
+  "fields": [
+    {
+      "bytes": "67614c1b06ddbb100cb6cbe919594cac31771c25530b6c7f28da242b"
+    },
+    {
+      "list": [
+        {
+          "constructor": 0,
+          "fields": [
+            {
+              "int": 1642283044000
+            },
+            {
+              "map": [
+                {
+                  "v": {
+                    "map": [
+                      {
+                        "v": {
+                          "int": 1000000
+                        },
+                        "k": {
+                          "bytes": ""
+                        }
+                      }
+                    ]
+                  },
+                  "k": {
+                    "bytes": ""
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "constructor": 0,
+          "fields": [
+            {
+              "int": 1644961444000
+            },
+            {
+              "map": [
+                {
+                  "v": {
+                    "map": [
+                      {
+                        "v": {
+                          "int": 1000000
+                        },
+                        "k": {
+                          "bytes": ""
+                        }
+                      }
+                    ]
+                  },
+                  "k": {
+                    "bytes": ""
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+This datum is for a vesting schedule for 2 Ada: the 1 Ada vests after one month and the second Ada vests after two months. It can be generated using the `vesting-sc` executable
+
+```
+$ vesting-sc datum \
+  --beneficiary 67614c1b06ddbb100cb6cbe919594cac31771c25530b6c7f28da242b \
+  --portion $(date -d '+1 month' '+%s'):1000000 \
+  --portion $(date -d '+2 month' '+%s'):1000000
+```
+
+Here is an example of an unlocking transaction corresponding to the above locking transaction:
 
 ```bash
 cardano-cli transaction build \
@@ -83,19 +168,21 @@ cardano-cli transaction build \
     --tx-in 2b81720f2cb268ff0827ba6f5858e7ce82e1fc4a14f4c8effcafa389acaad55b#1 \
     --tx-in-script-file vesting.plutus \
     --tx-in-datum-file vesting.json \
-    --tx-in-redeemer-value 0 \
+    --tx-in-redeemer-value redeemer.json \
     --tx-in bedfb6a1729598dc5af08d29ebf0e7b3c73a86db4a2dc5316fe6fd7873f64946#0 \
-    --required-signer ~/keys/benefactor.skey \
+    --required-signer ~/keys/.skey \
     --tx-in-collateral bedfb6a1729598dc5af08d29ebf0e7b3c73a86db4a2dc5316fe6fd7873f64946#0 \
-    --tx-out "addr1v8dg6hwygkphs4x0f3uwqx0jyywcarvhaquf0f2pzamf2ac7nzw0f + 5000000 lovelace" \
-    --tx-out "addr1v9ptfru625resx2rnw4csqfz0y99lecem97a4vqfnhhvk7qen3w2m + 4500000 lovelace" \
-    --tx-out "addr1v85teypffelqjaa92t6s363qhzcfkdplcfeh6e0pr9k48mc20wq09 + 500000 lovelace" \
+    --tx-out "addr1v8dg6hwygkphs4x0f3uwqx0jyywcarvhaquf0f2pzamf2ac7nzw0f + 1000000 lovelace" \
     --change-address addr1vyzwagqvqhd4q5swq67e60fm7dcrtcal4t96z0gea39zrgqjjtcvh \
     --protocol-params-file protocol-parameters.json \
     --out-file unlocking-tx-body.txt
 ```
 
-A few things to note. We are passing in the same datum we hashed for the locking transaction, e.g. `--tx-in-datum-value 12`. Another thing to note, we have an extra input UTxO to cover the transaction costs. Additionally, we are passing in a redeemer of `0`. This is arbitrary, any integer would work here.
+A few things to note. We are passing in the same datum we hashed for the locking transaction, e.g. `--tx-in-datum-file vesting.json`. Another thing to note, we have an extra input UTxO to cover the transaction costs. Additionally, we are passing in a file for the redeemer. This file should contain
+
+```
+{"constructor":0,"fields":[]}
+```
 
 Similar example transactions can be found in the `scripts` folder, which is used for testing, as described below.
 

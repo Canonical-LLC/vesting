@@ -11,6 +11,9 @@
 
 module Canonical.Vesting
   ( vesting
+  , Datum(..)
+  , Portion(..)
+  , Schedule
   ) where
 
 import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1)
