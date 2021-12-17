@@ -1,4 +1,16 @@
 {
+    "cardano-cli-balance-fixer": {
+        "branch": "main",
+        "description": "A simple utility to workaround cardano-cli's inability to balance non-native assets",
+        "homepage": null,
+        "owner": "Canonical-LLC",
+        "repo": "cardano-cli-balance-fixer",
+        "rev": "4a7cee8d9f23c3bc329f86d17eb56923a7a7f26d",
+        "sha256": "1z110rql0yh8fn4v2mr0xjyfl5yfa412dqxyw24aqrz0mzlqlb4y",
+        "type": "tarball",
+        "url": "https://github.com/Canonical-LLC/cardano-cli-balance-fixer/archive/4a7cee8d9f23c3bc329f86d17eb56923a7a7f26d.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-node": {
         "branch": "master",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",

@@ -86,4 +86,8 @@ writeDatum output beneficiary schedule = write . plutusDataToJSON $ datum where
   datum = Vesting.Datum beneficiary schedule
 
 plutusDataToJSON :: Plutus.ToData a => a -> LBS.ByteString
-plutusDataToJSON = Aeson.encode . (scriptDataToJson ScriptDataJsonDetailedSchema) . fromPlutusData . Plutus.toData
+plutusDataToJSON
+  = Aeson.encode
+  . (scriptDataToJson ScriptDataJsonDetailedSchema)
+  . fromPlutusData
+  . Plutus.toData

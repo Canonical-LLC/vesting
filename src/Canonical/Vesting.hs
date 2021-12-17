@@ -87,7 +87,6 @@ onlyOneScriptInput info =
     [_] -> True
     _ ->  False
 
-
 -------------------------------------------------------------------------------
 -- Validator
 -------------------------------------------------------------------------------
@@ -109,6 +108,7 @@ is reached, the full value (or even a portion of it) may not be accessible
 to the beneficiary. The beneficiary will have to wait until a later vesting
 deadline. 100% of the value will always be accessible after all deadlines have passed.
 -}
+{-# INLINABLE mkValidator #-}
 mkValidator :: Datum -> () -> ScriptContext -> Bool
 mkValidator datum _ ctx =
   traceIfFalse "expected exactly one script input" (onlyOneScriptInput info)
