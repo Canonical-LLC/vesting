@@ -44,6 +44,7 @@ cardano-cli transaction build \
     --tx-in-collateral $(cardano-cli-balance-fixer collateral --address $beneficiaryAddr $BLOCKCHAIN) \
     --tx-out "$beneficiaryAddr + $output1" \
     --tx-out "$scriptHash + $leftOverAmount lovelace" \
+    --tx-out-datum-hash $datumHash \
     --change-address $beneficiaryAddr \
     --protocol-params-file scripts/$BLOCKCHAIN_PREFIX/protocol-parameters.json \
     --invalid-before $startSlot\

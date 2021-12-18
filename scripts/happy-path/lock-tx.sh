@@ -16,11 +16,13 @@ mkdir -p "$DATUM_DIR"
 
 ARGS="--beneficiary $(cat $baseDir/$BLOCKCHAIN_PREFIX/beneficiary-pkh.txt)"
 
-now="$(date)"
+now="$(date +%s)"
+nowMill=$(($now+$1))
 lovelaces=0
 
 for i in "$@"; do
-  ARGS="$ARGS --portion $(date -d "$now +$i seconds" '+%s'):1000000"
+  timestamp=$(($nowMill+$i))
+  ARGS="$ARGS --portion $timestamp:1000000"
   lovelaces="$(($lovelaces + 1000000))"
 done
 

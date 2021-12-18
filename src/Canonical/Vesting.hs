@@ -21,7 +21,6 @@ import Codec.Serialise
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.ByteString.Short as SBS
 import Ledger hiding (Datum, singleton)
-import qualified Ledger.Contexts as Validation
 import qualified Ledger.Typed.Scripts as Scripts
 import qualified Ledger.Value as Value
 import Plutus.V1.Ledger.Credential

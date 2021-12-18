@@ -12,5 +12,5 @@ $baseDir/core/unlock-first-successfully-tx.sh \
   ~/$BLOCKCHAIN_PREFIX/beneficiary.skey \
   $baseDir/$BLOCKCHAIN_PREFIX/datums/$DATUM_PREFIX/vesting.json \
   $(cat $baseDir/$BLOCKCHAIN_PREFIX/datums/$DATUM_PREFIX/vesting-hash.txt) \
-  800000 \
-  1200000
+  600000 \
+  1400000
