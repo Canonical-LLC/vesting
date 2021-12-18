@@ -113,35 +113,3 @@ $ scripts/query/beneficiary
 ```
 
 Note that if you wait until everything is vested, the beneficiary will have received all the value.
-
-
-# Full System Tests
-
-There are three large system tests that cover the main use cases and potential vulnerabilities we are aware of. The tests can be run on mainnet or testnet.
-
-They take a long time to run, around 20 minutes, and can fail if the testnet is overloaded.
-
-Luckily running them is easy:
-
-```bash
-$ ./scripts/tests/all.sh
-```
-
-The tests will start running. If the script errors one of the tests has failed.
-
-If the scripts pass one must still verify that assets were transfered correctly at each step.
-
-In the `temp/accounts/diff` directory, there will be subdirectories for each test flow. Within these directories are folders for each test step. If assets were transfer, there will be `json` files the account difference.
-
-For instance after the first step to lock assets at the script address, the following `json` files are written:
-
-```bash
-$ cat temp/accounts/diffs/start-bid1-bid2-close.sh/0-1/sc.json
-{"":{"":1758582},"d6cfdbedd242056674c0e51ead01785497e3a48afbbb146dc72ee1e2":{"123456":1}}
-$ cat temp/accounts/diffs/start-bid1-bid2-close.sh/0-1/seller.json
-{"":{"":-1942827},"d6cfdbedd242056674c0e51ead01785497e3a48afbbb146dc72ee1e2":{"123456":-1}}
-```
-
-This shows that the smart contract (`sc`), received a non-native token (`d6cfdbedd242056674c0e51ead01785497e3a48afbbb146dc72ee1e2.123456`) and 1758582 lovelaces.
-
-As expected, the seller lost _at least_ this much. Notice it lost more Ada, because of fees.

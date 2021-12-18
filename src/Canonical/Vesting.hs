@@ -8,6 +8,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Canonical.Vesting
   ( vesting
@@ -22,6 +23,7 @@ import qualified Data.ByteString.Lazy as LB
 import qualified Data.ByteString.Short as SBS
 import Ledger hiding (Datum, singleton)
 import qualified Ledger.Typed.Scripts as Scripts
+import qualified Plutus.V1.Ledger.Scripts as Ledger
 import qualified Ledger.Value as Value
 import Plutus.V1.Ledger.Credential
 import qualified PlutusTx
@@ -36,6 +38,11 @@ data Portion = Portion
   , amount :: Value
   }
 
+instance Eq Portion where
+  x == y
+    =  deadline x == deadline y
+    && amount   x == amount y
+
 PlutusTx.unstableMakeIsData ''Portion
 
 type Schedule = [Portion]
@@ -44,6 +51,11 @@ data Datum = Datum
   { beneficiary :: PubKeyHash
   , schedule :: Schedule
   }
+
+instance Eq Datum where
+  x == y
+    =  beneficiary x == beneficiary y
+    && schedule x == schedule y
 
 PlutusTx.unstableMakeIsData ''Datum
 
@@ -112,7 +124,7 @@ mkValidator :: Datum -> () -> ScriptContext -> Bool
 mkValidator datum _ ctx =
   traceIfFalse "expected exactly one script input" (onlyOneScriptInput info)
     && traceIfFalse "Beneficiary's signature missing" signedByBeneficiary
-    && traceIfFalse "Not enough value remains locked to fulfill vesting schedule" outputValid
+    && outputValid
   where
     info :: TxInfo
     info = scriptContextTxInfo ctx
@@ -120,23 +132,39 @@ mkValidator datum _ ctx =
     signedByBeneficiary :: Bool
     signedByBeneficiary = txSignedBy info . beneficiary $ datum
 
-    locked :: Value
-    locked = mconcat $ map (txOutValue) $ getContinuingOutputs ctx
-
-
     -- vested portions are the ones that the deadline is before
     -- the time the transaction is valid in
     isVested :: Portion -> Bool
     isVested = (`before` txInfoValidRange info) . deadline
 
     unvested :: Value
-    unvested = mconcat . fmap amount . filter (not . isVested) . schedule $ datum
+    !unvested = mconcat . fmap amount . filter (not . isVested) . schedule $ datum
 
-    -- Make sure there is enough still locked in the script
-    -- to satisfy the remainder of unvested portions to be fulfilled.
-    --
     outputValid :: Bool
-    outputValid = locked `Value.geq` unvested
+    !outputValid = if Value.isZero unvested
+      then scriptOutputsAt (ownHash ctx) info == []
+      else
+        let
+          locked :: Value
+          outDatumHash :: DatumHash
+
+          (outDatumHash, !locked) = case scriptOutputsAt (ownHash ctx) info of
+            [(x, y)] -> (x, y)
+            _ -> traceError "expected exactly one continuing output"
+
+          outputDatum :: Datum
+          !outputDatum = case findDatum outDatumHash info of
+            Nothing -> traceError "datum not found"
+            Just (Ledger.Datum d) ->  case PlutusTx.fromBuiltinData d of
+              Just !x -> x
+              Nothing  -> traceError "error decoding data"
+
+        in traceIfFalse "Datum has been modified!"
+            (datum == outputDatum)
+          -- Make sure there is enough still locked in the script
+          -- to satisfy the remainder of unvested portions to be fulfilled.
+        && traceIfFalse "Not enough value remains locked to fulfill vesting schedule"
+            (locked `Value.geq` unvested)
 
 
 -------------------------------------------------------------------------------
