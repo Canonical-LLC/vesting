@@ -27,6 +27,9 @@ done
 echo $ARGS
 
 cabal run vesting-sc -- datum --output "$DATUM_FILE"  $ARGS
+cabal run vesting-sc -- write --output scripts/vesting.plutus
+
+$baseDir/hash-plutus.sh
 
 cardano-cli transaction hash-script-data \
   --script-data-file "$DATUM_FILE" \

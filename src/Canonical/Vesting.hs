@@ -122,7 +122,8 @@ mkValidator datum _ ctx =
     signedByBeneficiary = txSignedBy info . beneficiary $ datum
 
     locked :: Value
-    locked = Validation.valueLockedBy info (Validation.ownHash ctx)
+    locked = mconcat $ map (txOutValue) $ getContinuingOutputs ctx
+
 
     -- vested portions are the ones that the deadline is before
     -- the time the transaction is valid in
