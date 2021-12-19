@@ -34,8 +34,8 @@ import PlutusTx.Prelude hiding (Semigroup (..), unless)
 -------------------------------------------------------------------------------
 
 data Portion = Portion
-  { deadline :: POSIXTime
-  , amount :: Value
+  { deadline :: !POSIXTime
+  , amount :: !Value
   }
 
 instance Eq Portion where
@@ -48,8 +48,8 @@ PlutusTx.unstableMakeIsData ''Portion
 type Schedule = [Portion]
 
 data Datum = Datum
-  { beneficiary :: PubKeyHash
-  , schedule :: Schedule
+  { beneficiary :: !PubKeyHash
+  , schedule :: !Schedule
   }
 
 instance Eq Datum where
@@ -122,21 +122,16 @@ deadline. 100% of the value will always be accessible after all deadlines have p
 {-# INLINABLE mkValidator #-}
 mkValidator :: Datum -> () -> ScriptContext -> Bool
 mkValidator datum _ ctx =
-  traceIfFalse "expected exactly one script input" (onlyOneScriptInput info)
-    && traceIfFalse "Beneficiary's signature missing" signedByBeneficiary
-    && outputValid
-  where
+  let
     info :: TxInfo
-    info = scriptContextTxInfo ctx
+    !info = scriptContextTxInfo ctx
 
-    signedByBeneficiary :: Bool
-    signedByBeneficiary = txSignedBy info . beneficiary $ datum
-
-    -- vested portions are the ones that the deadline is before
+    -- Vested portions are the ones that the deadline is before
     -- the time the transaction is valid in
     isVested :: Portion -> Bool
-    isVested = (`before` txInfoValidRange info) . deadline
+    isVested portion = deadline portion `before` txInfoValidRange info
 
+    -- Total value left to vest, e.g. the amount that must stay locked.
     unvested :: Value
     !unvested = mconcat . fmap amount . filter (not . isVested) . schedule $ datum
 
@@ -145,9 +140,8 @@ mkValidator datum _ ctx =
       then True
       else
         let
-          locked :: Value
+          locked       :: Value
           outDatumHash :: DatumHash
-
           (outDatumHash, !locked) = case scriptOutputsAt (ownHash ctx) info of
             [(x, y)] -> (x, y)
             _ -> traceError "expected exactly one continuing output"
@@ -159,6 +153,7 @@ mkValidator datum _ ctx =
               Just !x -> x
               Nothing  -> traceError "error decoding data"
 
+        -- Ensure the datum has not been modified.
         in traceIfFalse "Datum has been modified!"
             (datum == outputDatum)
           -- Make sure there is enough still locked in the script
@@ -166,6 +161,12 @@ mkValidator datum _ ctx =
         && traceIfFalse "Not enough value remains locked to fulfill vesting schedule"
             (locked `Value.geq` unvested)
 
+    signedByBeneficiary :: Bool
+    !signedByBeneficiary = txSignedBy info $ beneficiary datum
+
+  in traceIfFalse "expected exactly one script input" (onlyOneScriptInput info)
+  && traceIfFalse "Beneficiary's signature missing" signedByBeneficiary
+  && outputValid
 
 -------------------------------------------------------------------------------
 -- Boilerplate

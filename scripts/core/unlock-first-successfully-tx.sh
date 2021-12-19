@@ -54,6 +54,7 @@ cardano-cli transaction build \
     --invalid-hereafter $nextTenSlots \
     --out-file $bodyFile
 
+
 echo "saved transaction to $bodyFile"
 
 cardano-cli transaction sign \
