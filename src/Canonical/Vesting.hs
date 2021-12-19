@@ -142,7 +142,7 @@ mkValidator datum _ ctx =
 
     outputValid :: Bool
     !outputValid = if Value.isZero unvested
-      then scriptOutputsAt (ownHash ctx) info == []
+      then True
       else
         let
           locked :: Value
