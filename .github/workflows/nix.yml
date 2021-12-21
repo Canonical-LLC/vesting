@@ -17,5 +17,4 @@ jobs:
       with:
         name: canonical-llc
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix-build ci.nix
-    - run: nix-shell --run "echo OK"
+    - run: nix build -L -v -f ci.nix
