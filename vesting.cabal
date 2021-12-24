@@ -33,7 +33,7 @@ library
     -fobject-code -fno-ignore-interface-pragmas
     -fno-omit-interface-pragmas -Wno-unused-packages -Werror
 
-executable vesting-sc
+executable create-sc
   import:         lang
   hs-source-dirs: app
   main-is:        Main.hs
@@ -45,3 +45,19 @@ executable vesting-sc
     , plutus-ledger-api
     , optparse-applicative
     , vesting
+
+executable meta-shake
+  import:         lang
+  hs-source-dirs: app
+  main-is:        MetaShake.hs
+  ghc-options:    -threaded -rtsopts -with-rtsopts=-T
+  build-depends:
+    , shake
+
+executable project-shake
+  import:         lang
+  hs-source-dirs: app
+  main-is:        Shake.hs
+  ghc-options:    -threaded -rtsopts -with-rtsopts=-T
+  build-depends:
+    , shake
