@@ -28,6 +28,10 @@ main = do
       liftIO $ removeFiles "output" ["*"]
       liftIO $ removeFiles buildDir [createScExeName]
 
+    -- TODO
+    -- Generate wallets
+    -- Generate
+
     plutusAddr %> \_ -> do
         need [plutusFile]
 
