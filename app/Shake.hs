@@ -42,7 +42,6 @@ main = do
   homeDir <- getHomeDirectory
   let cabalFile = "vesting.cabal"
       cabalProjectFile = "cabal.project"
-      freezeFile = "cabal.project.freeze"
       plutusFile = outputDir </> "vesting.plutus"
       blockChainOutput = outputDir </> blockChainFolder
       plutusAddr = blockChainOutput </> "vesting.addr"
@@ -150,5 +149,5 @@ main = do
 
     createScExe %> \_ -> do
       -- TODO cabal build
-      need $ haskellSrc <> [cabalFile, cabalProjectFile, freezeFile]
+      need $ haskellSrc <> [cabalFile, cabalProjectFile]
       cmd "cabal build"
