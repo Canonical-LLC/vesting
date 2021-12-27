@@ -61,3 +61,10 @@ executable project-shake
   ghc-options:    -threaded -rtsopts -with-rtsopts=-T
   build-depends:
     , shake
+    , plutus-ledger-api
+    , bytestring
+    , aeson
+    , vesting
+    , cardano-api
+    , time
+    , directory

@@ -166,3 +166,5 @@ Pods
 dist-newstyle
 temp/
 output/
+.shake/
+.meta-shake/
