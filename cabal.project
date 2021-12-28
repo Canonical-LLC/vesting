@@ -194,6 +194,7 @@ source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-wallet
   tag: d9563439e99d393380849f4586f7e2c9ab1e3561
+  --sha256: 0rm0y7fcr53fqd24ysd8mp74cxfgjxg6rhydq1njjnjmpknyswqm
   subdir:
     lib/core/
     lib/cli/
@@ -207,6 +208,7 @@ source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-addresses
   tag: d2f86caa085402a953920c6714a0de6a50b655ec
+  --sha256: 0p6jbnd7ky2yf7bwb1350k8880py8dgqg39k49q02a6ij4ld01ay
   subdir:
     core
     command-line
