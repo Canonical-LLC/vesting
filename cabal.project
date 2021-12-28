@@ -11,13 +11,12 @@ package cardano-crypto-praos
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-node
-  tag: 2cbe363874d0261bc62f52185cf23ed492cf4859
-  --sha256: 0x5j0cynlc9kiyj9w7casax477z3fb74pfsyfl373dn7rv1grg4d
+  tag: 4f65fb9a27aa7e3a1873ab4211e412af780a3648
+  --sha256: 00k9fqrm0gphjji23x0nc9z6bqh8bqrncgivn3mi3csacjzicrrx
   subdir:
     cardano-api
     cardano-cli
     cardano-client-demo
-    cardano-config
     cardano-node
     cardano-node-chairman
     cardano-submit-api
@@ -29,6 +28,12 @@ source-repository-package
     trace-dispatcher
     trace-forward
     trace-resources
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/cardano-config
+  tag: e9de7a2cf70796f6ff26eac9f9540184ded0e4e6
+  --sha256: 1wm1c99r5zvz22pdl8nhkp13falvqmj8dgkm8fxskwa9ydqz01ld
 
 package cryptonite
   -- Using RDRAND instead of /dev/urandom as an entropy source for key
@@ -165,8 +170,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/plutus
-  tag: d400da487208437998d90a8c2352f6f2315a58ef
-  --sha256: 00fp9y614gx7hak7b3wkhpr4z7n5nffdczz8ix4wwfrlx8ykigmq
+  tag: 2721c59fd2302b75c4138456c29fd5b509e8340a
+  --sha256: 02g8pzldyfl4pm8sy22yd3l2fr3zpyhwkvv9x3h9lsf6lfx5wi7k
   subdir:
     plutus-core
     plutus-ledger-api
@@ -178,9 +183,9 @@ source-repository-package
 
 source-repository-package
   type: git
-  location: https://github.com/input-output-hk/plutus-apps
-  tag: ac3f39e1c4384ce44fdb8c321985ac447e85e411
-  --sha256: 1nwa5w6h8pcyanfgjrprk5s6wz5xkp5lraliy8306gslpib3hs6n
+  location: https://github.com/Canonical-LLC/plutus-apps
+  tag: 2503ea174c9e343cb660ffba150b029bff99d50d
+  --sha256: 0z9g9nqpy4fygi2ghk0lahpqv5mgsrn49bn5yw2jjhjcvj243vl6
   subdir:
     freer-extras
     plutus-ledger

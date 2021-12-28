@@ -1,6 +1,6 @@
 let
   packages = import ./.;
-  inherit (packages) pkgs vesting cardano-node;
+  inherit (packages) pkgs vesting;
   inherit (vesting) haskell;
 
   cardano-cli-balance-fixer =
@@ -19,8 +19,8 @@ in
       stylish-haskell
       pkgs.niv
       cardano-repo-tool
-      cardano-node.cardano-cli
-      cardano-node.cardano-node
+      packages.plutus.plutus-apps.cardano-cli
+      packages.plutus.plutus-apps.cardano-node
       cardano-cli-balance-fixer
       pkgs.ghcid
       # HACK: This shouldn't need to be here.
