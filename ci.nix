@@ -1,4 +1,4 @@
 let
-  inherit (import ./.) project;
+  inherit (import ./. {}) project;
 in
   project.vesting.components.exes.vesting-sc

@@ -1,11 +1,11 @@
+{ system ? builtins.currentSystem
+, sources ? import ./sources.nix { inherit system; }
+}:
 let
-  # Pratically, the only needed dependency is the plutus repository.
-  sources = import ./sources.nix { inherit pkgs; };
-
   # We're going to get everything from the main plutus repository. This ensures
   # we're using the same version of multiple dependencies such as nipxkgs,
   # haskell-nix, cabal-install, compiler-nix-name, etc.
-  plutus = import sources.plutus-apps {};
+  plutus = import sources.plutus-apps { inherit system; };
 
   pkgs = plutus.pkgs;
 
@@ -14,8 +14,6 @@ let
   vesting = import ./pkgs {
     inherit pkgs haskell-nix sources plutus;
   };
-
-in
-{
+in {
   inherit pkgs vesting plutus;
 }
