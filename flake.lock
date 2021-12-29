@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "cardano-cli-balance-fixer": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1639695356,
+        "narHash": "sha256-niyK6a/gZ6yI4L7jJgJRzhfqvOwgV7GJdQh6QHEGIfw=",
+        "owner": "Canonical-LLC",
+        "repo": "cardano-cli-balance-fixer",
+        "rev": "4a7cee8d9f23c3bc329f86d17eb56923a7a7f26d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Canonical-LLC",
+        "repo": "cardano-cli-balance-fixer",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "locked": {
         "lastModified": 1638122382,
@@ -49,6 +65,7 @@
     },
     "root": {
       "inputs": {
+        "cardano-cli-balance-fixer": "cardano-cli-balance-fixer",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
         "plutus-apps": "plutus-apps"

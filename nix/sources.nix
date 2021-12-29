@@ -1,6 +1,6 @@
 # This file presents a niv-like interface over the sources listed
 # in a flake.lock.
-{ system }:
+{ system ? builtins.currentSystem }:
 let
   lock = builtins.fromJSON (builtins.readFile ../flake.lock);
 

@@ -1,11 +1,11 @@
 let
-  packages = import ./.;
+  packages = import ./. {};
   inherit (packages) pkgs vesting;
   inherit (vesting) haskell;
 
   cardano-cli-balance-fixer =
     let
-      p = import (import ./nix/sources.nix { inherit pkgs; }).cardano-cli-balance-fixer;
+      p = import (import ./nix/sources.nix {}).cardano-cli-balance-fixer;
     in
       p.cardano-cli-balance-fixer.components.exes.cardano-cli-balance-fixer;
 in

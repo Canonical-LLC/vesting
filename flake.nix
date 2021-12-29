@@ -10,6 +10,11 @@
       url = "github:Canonical-LLC/plutus-apps/ghc8.10.7";
       flake = false;
     };
+
+    cardano-cli-balance-fixer = {
+      url = "github:Canonical-LLC/cardano-cli-balance-fixer";
+      flake = false;
+    };
   };
 
   outputs = { self, flake-utils, ... }@inputs:
