@@ -2,7 +2,6 @@
 # Builds Haskell packages with Haskell.nix
 ############################################################################
 { haskell-nix
-, gitignore-nix
 , compiler-nix-name
 , lib
 , libsodium-vrf

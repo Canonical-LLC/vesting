@@ -1,5 +1,5 @@
-{ system ? builtins.currentSystem
-, sources ? import ./sources.nix { inherit system; }
+{ system
+, sources
 }:
 let
   # We're going to get everything from the main plutus repository. This ensures
@@ -9,10 +9,8 @@ let
 
   pkgs = plutus.pkgs;
 
-  haskell-nix = pkgs.haskell-nix;
-
   vesting = import ./pkgs {
-    inherit pkgs haskell-nix sources plutus;
+    inherit pkgs sources plutus;
   };
 in {
   inherit pkgs vesting plutus;

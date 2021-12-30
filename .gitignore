@@ -1,4 +1,6 @@
 stdout.txt
+/result
+/result-*
 
 # Compiled source #
 ###################

@@ -1,7 +1,6 @@
 { description = "A Plutus vesting smart contract";
 
   inputs = {
-    # only used by non-nix builds, everything else uses the nixpkgs fro plutus-apps
     nixpkgs.url = "github:NixOS/nixpkgs";
 
     flake-utils.url = "github:numtide/flake-utils";
